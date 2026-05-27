@@ -1,0 +1,20 @@
+target: epi
+dataset_root: "Projet#2/ProjetDL2024/Dataset"
+mask_dir_name: "masks epi"
+output_dir: "outputs"
+
+model:
+  architecture: "legacy_unet"
+  input_size: [256, 256]
+  base_filters: 32
+  batch_norm: false
+  dropout: 0.0
+
+training:
+  batch_size: 8
+  epochs: 80
+  learning_rate: 0.001
+  seed: 123
+  threshold: 0.5
+  augment: true
+  patience: 15

@@ -1,0 +1,24 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local datasets and heavy training artifacts
+Projet#2/
+data/
+outputs/
+logs/
+checkpoints/
+*.h5
+*.keras
+*.weights.h5
+*.tfevents.*
+!models/*.h5
+!models/*.weights.h5
+
+# Notebook runtime state
+.ipynb_checkpoints/

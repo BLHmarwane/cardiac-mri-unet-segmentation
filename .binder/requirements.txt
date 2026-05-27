@@ -1,0 +1,7 @@
+numpy>=1.26,<3
+scipy>=1.11
+scikit-image>=0.22
+tensorflow>=2.16
+PyYAML>=6.0
+matplotlib>=3.8
+streamlit>=1.32
