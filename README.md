@@ -10,15 +10,15 @@ This work was developed in the context of my Master TechMed training in biomedic
 
 ![Workflow](docs/assets/architecture_pipeline.png)
 
-## Public Demo
+## Project Demo
 
-Open the reliable static project demo:
+Open the project demo:
 
 [https://blhmarwane.github.io/cardiac-mri-unet-segmentation/](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
 
-The public demo is a static GitHub Pages presentation built from the validation assets: workflow diagram, metric interpretation, endocardium/epicardium results, and qualitative prediction panels. This is the most reliable way to present the project publicly because it does not depend on a live Binder session or a cold TensorFlow startup.
+The demo presents the validation assets: workflow diagram, metric interpretation, endocardium/epicardium results, and qualitative prediction panels.
 
-For live inference, the Streamlit prototype remains available locally:
+The interactive inference prototype can also be run locally:
 
 ```bash
 streamlit run app/streamlit_app.py

@@ -118,7 +118,7 @@
   <header>
     <div class="wrap">
       <h1>Cardiac MRI U-Net Segmentation</h1>
-      <p class="lead">Static project demo for a Master TechMed medical-imaging study on endocardium and epicardium segmentation. This page is designed as a reliable presentation fallback: it summarizes the task, metrics, qualitative outputs and reproducibility story without requiring a live GPU or Binder session.</p>
+      <p class="lead">Project demo for a Master TechMed medical-imaging study on endocardium and epicardium segmentation. This page summarizes the clinical task, the segmentation workflow, quantitative metrics, qualitative outputs and reproducibility story.</p>
       <div class="actions">
         <a class="button primary" href="https://github.com/BLHmarwane/cardiac-mri-unet-segmentation">View GitHub Repository</a>
         <a class="button" href="#results">See Results</a>
@@ -236,20 +236,13 @@
 
     <section>
       <h2>Reproducibility and Deployment</h2>
-      <div class="grid two">
-        <div>
-          <p>The repository keeps the scientific workflow inspectable:</p>
-          <ul>
-            <li><code>src/segmed</code>: dataset, model, metrics, pipeline and CLI.</li>
-            <li><code>configs</code>: endocardium and epicardium experiment settings.</li>
-            <li><code>docs/results</code>: public validation summaries.</li>
-            <li><code>app/streamlit_app.py</code>: local interactive inference prototype.</li>
-          </ul>
-        </div>
-        <div class="note warn">
-          <strong>Live inference note:</strong> Binder is not the primary public demo for this project because TensorFlow and model weights make startup fragile. This static page is the reliable public presentation layer; Streamlit remains available locally or through a dedicated Streamlit Cloud deployment.
-        </div>
-      </div>
+      <p>The repository keeps the scientific workflow inspectable:</p>
+      <ul>
+        <li><code>src/segmed</code>: dataset, model, metrics, pipeline and CLI.</li>
+        <li><code>configs</code>: endocardium and epicardium experiment settings.</li>
+        <li><code>docs/results</code>: public validation summaries.</li>
+        <li><code>app/streamlit_app.py</code>: interactive inference prototype for local experimentation.</li>
+      </ul>
     </section>
   </main>
 
