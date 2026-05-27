@@ -1,6 +1,6 @@
 # Cardiac MRI U-Net Segmentation
 
-[![Open in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=streamlit/)
+[![Static Demo](https://img.shields.io/badge/GitHub%20Pages-Open%20Demo-0f766e?style=for-the-badge)](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
 
 **A Master TechMed deep-learning project for cardiac MRI contour segmentation, focused on endocardium and epicardium masks, quantitative validation, visual interpretation, and deployable inference.**
 
@@ -10,13 +10,19 @@ This work was developed in the context of my Master TechMed training in biomedic
 
 ![Workflow](docs/assets/architecture_pipeline.png)
 
-## Live Demo
+## Public Demo
 
-Launch the interactive inference prototype from Binder:
+Open the reliable static project demo:
 
-[![Open Streamlit Demo](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=streamlit/)
+[https://blhmarwane.github.io/cardiac-mri-unet-segmentation/](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
 
-The demo includes trained Keras checkpoints for both targets. Visitors can either upload a grayscale cardiac image or click **Run demo sample** to test the inference interface without access to the full dataset.
+The public demo is a static GitHub Pages presentation built from the validation assets: workflow diagram, metric interpretation, endocardium/epicardium results, and qualitative prediction panels. This is the most reliable way to present the project publicly because it does not depend on a live Binder session or a cold TensorFlow startup.
+
+For live inference, the Streamlit prototype remains available locally:
+
+```bash
+streamlit run app/streamlit_app.py
+```
 
 ## Clinical and Technical Motivation
 

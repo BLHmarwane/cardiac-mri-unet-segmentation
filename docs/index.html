@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cardiac MRI U-Net Segmentation Demo</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #4b5563;
+      --line: #d8dee8;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --teal: #0f766e;
+      --blue: #2563eb;
+      --rose: #be123c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    header {
+      background: linear-gradient(135deg, #0f766e 0%, #1f2937 100%);
+      color: white;
+      padding: 56px 20px 48px;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    h1 { margin: 0 0 16px; font-size: clamp(2.1rem, 5vw, 4.2rem); line-height: 1.05; letter-spacing: 0; }
+    h2 { margin: 0 0 18px; font-size: clamp(1.45rem, 3vw, 2rem); }
+    h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    p { margin: 0 0 14px; }
+    .lead { max-width: 850px; font-size: 1.12rem; color: #e5f5f3; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 650;
+      border: 1px solid rgba(255,255,255,0.45);
+      color: white;
+      background: rgba(255,255,255,0.12);
+    }
+    .button.primary { background: white; color: #0f766e; border-color: white; }
+    main { padding: 34px 20px 60px; }
+    section {
+      max-width: 1120px;
+      margin: 0 auto 28px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfdff;
+    }
+    .metric strong { display: block; font-size: 1.85rem; color: var(--teal); line-height: 1.15; }
+    .metric span { color: var(--muted); font-size: 0.92rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 6px;
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+    .tab.active { background: var(--teal); border-color: var(--teal); color: white; }
+    .image-frame {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f3f4f6;
+    }
+    img { display: block; max-width: 100%; height: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: #374151; background: #f8fafc; }
+    .note {
+      border-left: 4px solid var(--teal);
+      background: #ecfdf5;
+      padding: 14px 16px;
+      border-radius: 4px;
+      color: #064e3b;
+    }
+    .warn {
+      border-left-color: var(--rose);
+      background: #fff1f2;
+      color: #881337;
+    }
+    ul { margin: 0; padding-left: 20px; }
+    code { background: #f3f4f6; padding: 2px 5px; border-radius: 4px; }
+    footer { max-width: 1120px; margin: 0 auto; color: var(--muted); font-size: 0.9rem; padding: 0 20px 40px; }
+    @media (max-width: 760px) {
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      section { padding: 18px; }
+      th, td { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Cardiac MRI U-Net Segmentation</h1>
+      <p class="lead">Static project demo for a Master TechMed medical-imaging study on endocardium and epicardium segmentation. This page is designed as a reliable presentation fallback: it summarizes the task, metrics, qualitative outputs and reproducibility story without requiring a live GPU or Binder session.</p>
+      <div class="actions">
+        <a class="button primary" href="https://github.com/BLHmarwane/cardiac-mri-unet-segmentation">View GitHub Repository</a>
+        <a class="button" href="#results">See Results</a>
+        <a class="button" href="#qualitative">Qualitative Analysis</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Clinical and Technical Objective</h2>
+      <div class="grid two">
+        <div>
+          <p>The goal is to segment two cardiac MRI contours: the <strong>endocardium</strong>, which separates the ventricular cavity from the myocardium, and the <strong>epicardium</strong>, which follows the external myocardial boundary.</p>
+          <p>The project combines anatomical understanding, U-Net segmentation, quantitative evaluation and visual inspection. It is an educational and research-oriented prototype, not a clinical decision-support tool.</p>
+        </div>
+        <div class="note">
+          <strong>Why this matters:</strong> in medical image segmentation, high global overlap is not enough. Boundary quality matters because a local contour error can affect anatomical interpretation even when Dice remains high.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Workflow</h2>
+      <div class="image-frame">
+        <img src="assets/architecture_pipeline.png" alt="Cardiac MRI U-Net workflow diagram">
+      </div>
+    </section>
+
+    <section id="results">
+      <h2>Validation Results</h2>
+      <p>Validation was performed on 30 held-out frames using trained Keras U-Net checkpoints.</p>
+      <div class="grid three" style="margin: 18px 0;">
+        <div class="metric"><strong>0.9374</strong><span>Endocardium mean Dice</span></div>
+        <div class="metric"><strong>0.9198</strong><span>Epicardium mean Dice</span></div>
+        <div class="metric"><strong>20.66 px</strong><span>Epicardium Hausdorff, boundary outliers visible</span></div>
+      </div>
+      <div class="image-frame" style="margin-bottom: 20px;">
+        <img src="assets/metrics_summary.png" alt="Validation metrics summary chart">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Target</th>
+            <th>Dice</th>
+            <th>IoU</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>Hausdorff</th>
+            <th>ASSD</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Endocardium</td>
+            <td>0.9374</td>
+            <td>0.8849</td>
+            <td>0.9442</td>
+            <td>0.9369</td>
+            <td>7.35</td>
+            <td>2.29</td>
+          </tr>
+          <tr>
+            <td>Epicardium</td>
+            <td>0.9198</td>
+            <td>0.8639</td>
+            <td>0.9406</td>
+            <td>0.9187</td>
+            <td>20.66</td>
+            <td>4.58</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Metric Interpretation</h2>
+      <div class="grid two">
+        <div>
+          <h3>Overlap metrics</h3>
+          <ul>
+            <li><strong>Dice:</strong> similarity between predicted and reference masks.</li>
+            <li><strong>IoU:</strong> stricter overlap score based on intersection over union.</li>
+            <li><strong>Precision:</strong> how often predicted structure pixels are correct.</li>
+            <li><strong>Recall:</strong> how much of the real structure is recovered.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Boundary metrics</h3>
+          <ul>
+            <li><strong>Hausdorff:</strong> worst-case contour distance; sensitive to local outliers.</li>
+            <li><strong>ASSD:</strong> average symmetric surface distance; smoother view of boundary error.</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:16px;">The endocardium model is more stable across metrics. The epicardium model has strong overlap but a higher Hausdorff distance, suggesting more local boundary variability on the outer myocardial contour.</p>
+    </section>
+
+    <section id="qualitative">
+      <h2>Qualitative Validation Panels</h2>
+      <p>Each panel displays the input image, ground-truth mask, predicted mask and overlay.</p>
+      <div class="tabs" role="tablist" aria-label="Target selector">
+        <button class="tab active" type="button" data-target="endo">Endocardium</button>
+        <button class="tab" type="button" data-target="epi">Epicardium</button>
+      </div>
+      <div id="endo-panel" class="grid two">
+        <div class="image-frame"><img src="assets/qualitative_endo_01.png" alt="Endocardium qualitative sample 1"></div>
+        <div class="image-frame"><img src="assets/qualitative_endo_02.png" alt="Endocardium qualitative sample 2"></div>
+      </div>
+      <div id="epi-panel" class="grid two" style="display:none;">
+        <div class="image-frame"><img src="assets/qualitative_epi_01.png" alt="Epicardium qualitative sample 1"></div>
+        <div class="image-frame"><img src="assets/qualitative_epi_02.png" alt="Epicardium qualitative sample 2"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Reproducibility and Deployment</h2>
+      <div class="grid two">
+        <div>
+          <p>The repository keeps the scientific workflow inspectable:</p>
+          <ul>
+            <li><code>src/segmed</code>: dataset, model, metrics, pipeline and CLI.</li>
+            <li><code>configs</code>: endocardium and epicardium experiment settings.</li>
+            <li><code>docs/results</code>: public validation summaries.</li>
+            <li><code>app/streamlit_app.py</code>: local interactive inference prototype.</li>
+          </ul>
+        </div>
+        <div class="note warn">
+          <strong>Live inference note:</strong> Binder is not the primary public demo for this project because TensorFlow and model weights make startup fragile. This static page is the reliable public presentation layer; Streamlit remains available locally or through a dedicated Streamlit Cloud deployment.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Cardiac MRI U-Net Segmentation - Master TechMed biomedical image analysis project. Static demo generated from repository validation assets.</p>
+  </footer>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const panels = {
+      endo: document.getElementById("endo-panel"),
+      epi: document.getElementById("epi-panel")
+    };
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((item) => item.classList.remove("active"));
+        tab.classList.add("active");
+        const target = tab.dataset.target;
+        Object.entries(panels).forEach(([key, panel]) => {
+          panel.style.display = key === target ? "grid" : "none";
+        });
+      });
+    });
+  </script>
+</body>
+</html>
