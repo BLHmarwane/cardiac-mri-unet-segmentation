@@ -1,6 +1,6 @@
 # Cardiac MRI U-Net Segmentation
 
-[![Static Demo](https://img.shields.io/badge/GitHub%20Pages-Open%20Demo-0f766e?style=for-the-badge)](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
+[![Interactive Demo](https://img.shields.io/badge/GitHub%20Pages-Interactive%20Demo-0f766e?style=for-the-badge)](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
 
 **A Master TechMed deep-learning project for cardiac MRI contour segmentation, focused on endocardium and epicardium masks, quantitative validation, visual interpretation, and deployable inference.**
 
@@ -10,19 +10,13 @@ This work was developed in the context of my Master TechMed training in biomedic
 
 ![Workflow](docs/assets/architecture_pipeline.png)
 
-## Project Demo
+## Interactive Project Demo
 
-Open the project demo:
+Open the official interactive result explorer:
 
 [https://blhmarwane.github.io/cardiac-mri-unet-segmentation/](https://blhmarwane.github.io/cardiac-mri-unet-segmentation/)
 
-The demo presents the validation assets: workflow diagram, metric interpretation, endocardium/epicardium results, and qualitative prediction panels.
-
-The interactive inference prototype can also be run locally:
-
-```bash
-streamlit run app/streamlit_app.py
-```
+The demo is a static, reproducible GitHub Pages interface built from the repository validation assets. It lets the reader switch between endocardium and epicardium results, inspect Dice/IoU/precision/recall/Hausdorff/ASSD, compare overlap and boundary behavior, and review representative validation cases with per-image metrics.
 
 ## Clinical and Technical Motivation
 

@@ -12,8 +12,12 @@
       --bg: #f8fafc;
       --panel: #ffffff;
       --teal: #0f766e;
+      --teal-soft: #ecfdf5;
       --blue: #2563eb;
+      --blue-soft: #eff6ff;
       --rose: #be123c;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
     }
     * { box-sizing: border-box; }
     body {
@@ -61,16 +65,19 @@
     .grid { display: grid; gap: 16px; }
     .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .metric {
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 16px;
       background: #fbfdff;
+      min-height: 105px;
     }
     .metric strong { display: block; font-size: 1.85rem; color: var(--teal); line-height: 1.15; }
     .metric span { color: var(--muted); font-size: 0.92rem; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .tab {
+    .metric small { display: block; margin-top: 8px; color: var(--muted); }
+    .tabs, .segmented { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tab, .segmented button {
       border: 1px solid var(--line);
       background: white;
       color: var(--ink);
@@ -80,7 +87,7 @@
       cursor: pointer;
       font-weight: 650;
     }
-    .tab.active { background: var(--teal); border-color: var(--teal); color: white; }
+    .tab.active, .segmented button.active { background: var(--teal); border-color: var(--teal); color: white; }
     .image-frame {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -94,23 +101,36 @@
     th { color: #374151; background: #f8fafc; }
     .note {
       border-left: 4px solid var(--teal);
-      background: #ecfdf5;
+      background: var(--teal-soft);
       padding: 14px 16px;
       border-radius: 4px;
       color: #064e3b;
     }
-    .warn {
-      border-left-color: var(--rose);
-      background: #fff1f2;
-      color: #881337;
-    }
+    .note.blue { border-left-color: var(--blue); background: var(--blue-soft); color: #1e3a8a; }
+    .note.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #78350f; }
     ul { margin: 0; padding-left: 20px; }
     code { background: #f3f4f6; padding: 2px 5px; border-radius: 4px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 72px; gap: 10px; align-items: center; margin: 10px 0; }
+    .bar-track { height: 12px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+    .bar-fill { height: 100%; width: 0%; border-radius: 999px; background: var(--teal); transition: width 160ms ease; }
+    .bar-fill.blue { background: var(--blue); }
+    .select-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+    select {
+      min-height: 38px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      padding: 6px 10px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+    }
+    .case-caption { color: var(--muted); font-size: 0.94rem; margin-top: 10px; }
     footer { max-width: 1120px; margin: 0 auto; color: var(--muted); font-size: 0.9rem; padding: 0 20px 40px; }
-    @media (max-width: 760px) {
-      .grid.two, .grid.three { grid-template-columns: 1fr; }
+    @media (max-width: 860px) {
+      .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
       section { padding: 18px; }
       th, td { font-size: 0.86rem; }
+      .bar-row { grid-template-columns: 92px 1fr 58px; }
     }
   </style>
 </head>
@@ -118,11 +138,11 @@
   <header>
     <div class="wrap">
       <h1>Cardiac MRI U-Net Segmentation</h1>
-      <p class="lead">Project demo for a Master TechMed medical-imaging study on endocardium and epicardium segmentation. This page summarizes the clinical task, the segmentation workflow, quantitative metrics, qualitative outputs and reproducibility story.</p>
+      <p class="lead">Interactive project demo for a Master TechMed medical-imaging study on endocardium and epicardium segmentation. Explore the clinical task, segmentation workflow, quantitative metrics, sample-level behavior and qualitative prediction panels.</p>
       <div class="actions">
         <a class="button primary" href="https://github.com/BLHmarwane/cardiac-mri-unet-segmentation">View GitHub Repository</a>
-        <a class="button" href="#results">See Results</a>
-        <a class="button" href="#qualitative">Qualitative Analysis</a>
+        <a class="button" href="#explorer">Explore Results</a>
+        <a class="button" href="#case-inspector">Inspect Cases</a>
       </div>
     </div>
   </header>
@@ -148,14 +168,88 @@
       </div>
     </section>
 
+    <section id="explorer">
+      <h2>Interactive Result Explorer</h2>
+      <div class="segmented" aria-label="Target selector">
+        <button type="button" class="active" data-target-switch="endo">Endocardium</button>
+        <button type="button" data-target-switch="epi">Epicardium</button>
+      </div>
+      <div id="target-metrics" class="grid three"></div>
+      <div id="target-interpretation" class="note" style="margin-top:16px;"></div>
+    </section>
+
+    <section>
+      <h2>Metric Explorer</h2>
+      <div class="select-row">
+        <label for="metric-select"><strong>Select a metric</strong></label>
+        <select id="metric-select">
+          <option value="dice">Dice</option>
+          <option value="iou">IoU</option>
+          <option value="precision">Precision</option>
+          <option value="recall">Recall</option>
+          <option value="hausdorff">Hausdorff</option>
+          <option value="assd">ASSD</option>
+        </select>
+      </div>
+      <div class="grid two">
+        <div>
+          <h3 id="metric-title">Dice</h3>
+          <p id="metric-description"></p>
+          <p id="metric-direction" class="note blue"></p>
+        </div>
+        <div>
+          <div class="bar-row">
+            <strong>Endo</strong>
+            <div class="bar-track"><div id="metric-endo-bar" class="bar-fill"></div></div>
+            <span id="metric-endo-value"></span>
+          </div>
+          <div class="bar-row">
+            <strong>Epi</strong>
+            <div class="bar-track"><div id="metric-epi-bar" class="bar-fill blue"></div></div>
+            <span id="metric-epi-value"></span>
+          </div>
+          <p id="metric-takeaway" class="case-caption"></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Boundary vs Overlap</h2>
+      <div class="segmented" aria-label="View mode selector">
+        <button type="button" class="active" data-view-mode="overlap">Overlap view</button>
+        <button type="button" data-view-mode="boundary">Boundary view</button>
+      </div>
+      <div id="view-mode-content" class="grid two"></div>
+    </section>
+
+    <section id="case-inspector">
+      <h2>Case Inspector</h2>
+      <p>Inspect representative validation panels and their per-image metrics. Each panel contains the input image, ground truth, prediction and overlay.</p>
+      <div class="tabs" role="tablist" aria-label="Case target selector">
+        <button class="tab active" type="button" data-case-target="endo">Endocardium</button>
+        <button class="tab" type="button" data-case-target="epi">Epicardium</button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Sample selector">
+        <button class="tab active" type="button" data-case-sample="0">Sample 1</button>
+        <button class="tab" type="button" data-case-sample="1">Sample 2</button>
+      </div>
+      <div class="grid two">
+        <div>
+          <div class="image-frame">
+            <img id="case-image" src="assets/qualitative_endo_01.png" alt="Qualitative validation panel">
+          </div>
+          <p id="case-caption" class="case-caption"></p>
+        </div>
+        <div>
+          <div id="case-metrics" class="grid two"></div>
+          <div id="case-note" class="note amber" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="results">
       <h2>Validation Results</h2>
       <p>Validation was performed on 30 held-out frames using trained Keras U-Net checkpoints.</p>
-      <div class="grid three" style="margin: 18px 0;">
-        <div class="metric"><strong>0.9374</strong><span>Endocardium mean Dice</span></div>
-        <div class="metric"><strong>0.9198</strong><span>Epicardium mean Dice</span></div>
-        <div class="metric"><strong>20.66 px</strong><span>Epicardium Hausdorff, boundary outliers visible</span></div>
-      </div>
       <div class="image-frame" style="margin-bottom: 20px;">
         <img src="assets/metrics_summary.png" alt="Validation metrics summary chart">
       </div>
@@ -195,46 +289,6 @@
     </section>
 
     <section>
-      <h2>Metric Interpretation</h2>
-      <div class="grid two">
-        <div>
-          <h3>Overlap metrics</h3>
-          <ul>
-            <li><strong>Dice:</strong> similarity between predicted and reference masks.</li>
-            <li><strong>IoU:</strong> stricter overlap score based on intersection over union.</li>
-            <li><strong>Precision:</strong> how often predicted structure pixels are correct.</li>
-            <li><strong>Recall:</strong> how much of the real structure is recovered.</li>
-          </ul>
-        </div>
-        <div>
-          <h3>Boundary metrics</h3>
-          <ul>
-            <li><strong>Hausdorff:</strong> worst-case contour distance; sensitive to local outliers.</li>
-            <li><strong>ASSD:</strong> average symmetric surface distance; smoother view of boundary error.</li>
-          </ul>
-        </div>
-      </div>
-      <p style="margin-top:16px;">The endocardium model is more stable across metrics. The epicardium model has strong overlap but a higher Hausdorff distance, suggesting more local boundary variability on the outer myocardial contour.</p>
-    </section>
-
-    <section id="qualitative">
-      <h2>Qualitative Validation Panels</h2>
-      <p>Each panel displays the input image, ground-truth mask, predicted mask and overlay.</p>
-      <div class="tabs" role="tablist" aria-label="Target selector">
-        <button class="tab active" type="button" data-target="endo">Endocardium</button>
-        <button class="tab" type="button" data-target="epi">Epicardium</button>
-      </div>
-      <div id="endo-panel" class="grid two">
-        <div class="image-frame"><img src="assets/qualitative_endo_01.png" alt="Endocardium qualitative sample 1"></div>
-        <div class="image-frame"><img src="assets/qualitative_endo_02.png" alt="Endocardium qualitative sample 2"></div>
-      </div>
-      <div id="epi-panel" class="grid two" style="display:none;">
-        <div class="image-frame"><img src="assets/qualitative_epi_01.png" alt="Epicardium qualitative sample 1"></div>
-        <div class="image-frame"><img src="assets/qualitative_epi_02.png" alt="Epicardium qualitative sample 2"></div>
-      </div>
-    </section>
-
-    <section>
       <h2>Reproducibility and Deployment</h2>
       <p>The repository keeps the scientific workflow inspectable:</p>
       <ul>
@@ -247,25 +301,207 @@
   </main>
 
   <footer>
-    <p>Cardiac MRI U-Net Segmentation - Master TechMed biomedical image analysis project. Static demo generated from repository validation assets.</p>
+    <p>Cardiac MRI U-Net Segmentation - Master TechMed biomedical image analysis project. Demo generated from repository validation assets.</p>
   </footer>
 
   <script>
-    const tabs = document.querySelectorAll(".tab");
-    const panels = {
-      endo: document.getElementById("endo-panel"),
-      epi: document.getElementById("epi-panel")
+    const summary = {
+      endo: {
+        label: "Endocardium",
+        color: "var(--teal)",
+        metrics: { dice: 0.9374, iou: 0.8849, precision: 0.9442, recall: 0.9369, hausdorff: 7.35, assd: 2.29 },
+        interpretation: "The endocardium checkpoint is the most stable target: overlap is high and boundary distances remain comparatively low, suggesting that the learned contour is usually close to the annotation.",
+        samples: [
+          { image: "assets/qualitative_endo_01.png", name: "10_0.142857_0.103448.png", metrics: { dice: 0.8881, iou: 0.7988, precision: 0.9292, recall: 0.8505, hausdorff: 5.39, assd: 1.58 } },
+          { image: "assets/qualitative_endo_02.png", name: "11_0.153846_0.931034.png", metrics: { dice: 0.7852, iou: 0.6464, precision: 1.0, recall: 0.6464, hausdorff: 20.62, assd: 7.99 } }
+        ]
+      },
+      epi: {
+        label: "Epicardium",
+        color: "var(--blue)",
+        metrics: { dice: 0.9198, iou: 0.8639, precision: 0.9406, recall: 0.9187, hausdorff: 20.66, assd: 4.58 },
+        interpretation: "The epicardium checkpoint keeps strong global overlap, but the higher Hausdorff distance reveals more local boundary variability on the external myocardial contour.",
+        samples: [
+          { image: "assets/qualitative_epi_01.png", name: "10_0.142857_0.103448.png", metrics: { dice: 0.4619, iou: 0.3003, precision: 1.0, recall: 0.3003, hausdorff: 33.62, assd: 12.90 } },
+          { image: "assets/qualitative_epi_02.png", name: "11_0.153846_0.931034.png", metrics: { dice: 0.9373, iou: 0.8820, precision: 0.9078, recall: 0.9688, hausdorff: 8.25, assd: 2.67 } }
+        ]
+      }
     };
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        tabs.forEach((item) => item.classList.remove("active"));
-        tab.classList.add("active");
-        const target = tab.dataset.target;
-        Object.entries(panels).forEach(([key, panel]) => {
-          panel.style.display = key === target ? "grid" : "none";
-        });
+
+    const metricInfo = {
+      dice: {
+        label: "Dice",
+        description: "Dice measures mask overlap. It is high when predicted and reference masks cover nearly the same pixels.",
+        direction: "Higher is better. A value close to 1 means strong region agreement.",
+        takeaway: "Both targets show strong overlap, with endocardium slightly higher."
+      },
+      iou: {
+        label: "IoU",
+        description: "Intersection over Union is a stricter overlap metric: common area divided by total area covered by either mask.",
+        direction: "Higher is better. IoU is usually lower than Dice for the same prediction.",
+        takeaway: "The IoU confirms that the good Dice scores are not only optimistic overlap readings."
+      },
+      precision: {
+        label: "Precision",
+        description: "Precision asks whether predicted structure pixels are actually correct.",
+        direction: "Higher is better. High precision means fewer false-positive structure pixels.",
+        takeaway: "Precision is high for both targets, suggesting limited over-segmentation."
+      },
+      recall: {
+        label: "Recall",
+        description: "Recall asks how much of the real structure was recovered by the model.",
+        direction: "Higher is better. Low recall means the model misses parts of the anatomy.",
+        takeaway: "Recall is slightly lower for epicardium, consistent with the harder outer boundary."
+      },
+      hausdorff: {
+        label: "Hausdorff",
+        description: "Hausdorff distance captures the worst-case contour mismatch between prediction and reference.",
+        direction: "Lower is better. It is sensitive to local contour outliers.",
+        takeaway: "Epicardium has a much higher Hausdorff distance, indicating local boundary deviations."
+      },
+      assd: {
+        label: "ASSD",
+        description: "Average Symmetric Surface Distance measures the average distance between predicted and reference contours.",
+        direction: "Lower is better. It is smoother than Hausdorff because it averages surface errors.",
+        takeaway: "ASSD is lower for endocardium, confirming a more consistent boundary."
+      }
+    };
+
+    const state = { target: "endo", metric: "dice", caseTarget: "endo", sample: 0, mode: "overlap" };
+
+    const formatMetric = (key, value) => {
+      if (key === "hausdorff" || key === "assd") return value.toFixed(2);
+      return value.toFixed(4);
+    };
+
+    function renderTargetMetrics() {
+      const target = summary[state.target];
+      const container = document.getElementById("target-metrics");
+      container.innerHTML = Object.entries(target.metrics).map(([key, value]) => `
+        <div class="metric">
+          <strong>${formatMetric(key, value)}</strong>
+          <span>${metricInfo[key].label}</span>
+          <small>${key === "hausdorff" || key === "assd" ? "pixels, lower is better" : "score, higher is better"}</small>
+        </div>
+      `).join("");
+      document.getElementById("target-interpretation").textContent = target.interpretation;
+    }
+
+    function metricBarWidth(key, value) {
+      if (key === "hausdorff") return Math.max(4, Math.min(100, (1 - value / 30) * 100));
+      if (key === "assd") return Math.max(4, Math.min(100, (1 - value / 8) * 100));
+      return Math.max(4, Math.min(100, value * 100));
+    }
+
+    function renderMetricExplorer() {
+      const key = state.metric;
+      const info = metricInfo[key];
+      const endoValue = summary.endo.metrics[key];
+      const epiValue = summary.epi.metrics[key];
+      document.getElementById("metric-title").textContent = info.label;
+      document.getElementById("metric-description").textContent = info.description;
+      document.getElementById("metric-direction").textContent = info.direction;
+      document.getElementById("metric-endo-value").textContent = formatMetric(key, endoValue);
+      document.getElementById("metric-epi-value").textContent = formatMetric(key, epiValue);
+      document.getElementById("metric-endo-bar").style.width = `${metricBarWidth(key, endoValue)}%`;
+      document.getElementById("metric-epi-bar").style.width = `${metricBarWidth(key, epiValue)}%`;
+      document.getElementById("metric-takeaway").textContent = info.takeaway;
+    }
+
+    function renderViewMode() {
+      const container = document.getElementById("view-mode-content");
+      if (state.mode === "overlap") {
+        container.innerHTML = `
+          <div class="note">
+            <h3>Overlap view</h3>
+            <p>Dice, IoU, precision and recall summarize how well the predicted region matches the annotated region. These metrics are useful to check global mask agreement.</p>
+          </div>
+          <div>
+            <div class="bar-row"><strong>Dice</strong><div class="bar-track"><div class="bar-fill" style="width:93.74%"></div></div><span>0.94</span></div>
+            <div class="bar-row"><strong>IoU</strong><div class="bar-track"><div class="bar-fill" style="width:88.49%"></div></div><span>0.88</span></div>
+            <p class="case-caption">Endocardium is slightly stronger on overlap metrics, but both targets remain in a good segmentation range.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="note amber">
+            <h3>Boundary view</h3>
+            <p>Hausdorff and ASSD focus on contour distances. They reveal local boundary errors that can be hidden by good overlap scores.</p>
+          </div>
+          <div>
+            <div class="bar-row"><strong>Endo HD</strong><div class="bar-track"><div class="bar-fill" style="width:76%"></div></div><span>7.35</span></div>
+            <div class="bar-row"><strong>Epi HD</strong><div class="bar-track"><div class="bar-fill blue" style="width:31%"></div></div><span>20.66</span></div>
+            <p class="case-caption">Epicardium keeps a good Dice score but its higher Hausdorff distance points to local contour outliers.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderCaseInspector() {
+      const target = summary[state.caseTarget];
+      const sample = target.samples[state.sample];
+      document.getElementById("case-image").src = sample.image;
+      document.getElementById("case-image").alt = `${target.label} ${sample.name} qualitative panel`;
+      document.getElementById("case-caption").textContent = `${target.label} - ${sample.name}`;
+      document.getElementById("case-metrics").innerHTML = Object.entries(sample.metrics).map(([key, value]) => `
+        <div class="metric">
+          <strong>${formatMetric(key, value)}</strong>
+          <span>${metricInfo[key].label}</span>
+        </div>
+      `).join("");
+      const note = sample.metrics.hausdorff > 20
+        ? "This case contains a visible boundary challenge: the Hausdorff distance is high, so at least one contour region is far from the reference."
+        : "This case shows more consistent contour behavior, with lower boundary distances and stronger agreement.";
+      document.getElementById("case-note").textContent = note;
+    }
+
+    document.querySelectorAll("[data-target-switch]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-target-switch]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        state.target = button.dataset.targetSwitch;
+        renderTargetMetrics();
       });
     });
+
+    document.getElementById("metric-select").addEventListener("change", (event) => {
+      state.metric = event.target.value;
+      renderMetricExplorer();
+    });
+
+    document.querySelectorAll("[data-view-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-view-mode]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        state.mode = button.dataset.viewMode;
+        renderViewMode();
+      });
+    });
+
+    document.querySelectorAll("[data-case-target]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-case-target]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        state.caseTarget = button.dataset.caseTarget;
+        state.sample = 0;
+        document.querySelectorAll("[data-case-sample]").forEach((item, index) => item.classList.toggle("active", index === 0));
+        renderCaseInspector();
+      });
+    });
+
+    document.querySelectorAll("[data-case-sample]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-case-sample]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        state.sample = Number(button.dataset.caseSample);
+        renderCaseInspector();
+      });
+    });
+
+    renderTargetMetrics();
+    renderMetricExplorer();
+    renderViewMode();
+    renderCaseInspector();
   </script>
 </body>
 </html>
