@@ -1,6 +1,6 @@
 # Cardiac MRI U-Net Segmentation
 
-[![Open in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=proxy/8501/)
+[![Open in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=streamlit/)
 
 **A Master TechMed deep-learning project for cardiac MRI contour segmentation, focused on endocardium and epicardium masks, quantitative validation, visual interpretation, and deployable inference.**
 
@@ -14,7 +14,7 @@ This work was developed in the context of my Master TechMed training in biomedic
 
 Launch the interactive inference prototype from Binder:
 
-[![Open Streamlit Demo](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=proxy/8501/)
+[![Open Streamlit Demo](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=streamlit/)
 
 The demo includes trained Keras checkpoints for both targets. Visitors can either upload a grayscale cardiac image or click **Run demo sample** to test the inference interface without access to the full dataset.
 
