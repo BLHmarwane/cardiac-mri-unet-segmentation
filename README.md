@@ -2,21 +2,21 @@
 
 [![Open in Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=proxy/8501/)
 
-**A reproducible deep-learning case study for cardiac MRI contour segmentation, focused on endocardium and epicardium masks, quantitative validation, visual interpretation, and deployable inference.**
+**A Master TechMed deep-learning project for cardiac MRI contour segmentation, focused on endocardium and epicardium masks, quantitative validation, visual interpretation, and deployable inference.**
 
-This project revisits an academic medical-imaging segmentation work and turns it into a portfolio-grade pipeline: not only a trained U-Net, but a documented workflow where data pairing, preprocessing, metrics, qualitative inspection, CLI inference, and Streamlit deployment are all explicit.
+This work was developed in the context of my Master TechMed training in biomedical data analysis and deep learning. The project combines machine-learning implementation with clinical context acquired through exchanges with physicians and medical-track peers, especially around anatomical contouring, annotation meaning, and the interpretation of endocardial and epicardial boundaries in cardiac MRI.
 
-> This is a research and portfolio demonstration, not a medical device or clinical decision-support tool.
+> This is an educational and research-oriented medical-imaging project. It is not a medical device or a clinical decision-support system.
 
 ![Workflow](docs/assets/architecture_pipeline.png)
 
 ## Live Demo
 
-Launch the interactive Streamlit demo from Binder:
+Launch the interactive inference prototype from Binder:
 
 [![Open Streamlit Demo](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BLHmarwane/cardiac-mri-unet-segmentation/main?urlpath=proxy/8501/)
 
-The demo includes pretrained Keras checkpoints for both targets. Visitors can either upload a grayscale cardiac image or click **Run demo sample** to test the inference interface without access to the original dataset.
+The demo includes trained Keras checkpoints for both targets. Visitors can either upload a grayscale cardiac image or click **Run demo sample** to test the inference interface without access to the full dataset.
 
 ## Clinical and Technical Motivation
 
@@ -31,7 +31,7 @@ This distinction is important in medical imaging: a model should not only "fill 
 
 ## Dataset and Task
 
-The local dataset used for validation contains grayscale cardiac MRI frames with paired binary masks:
+The dataset used for validation contains grayscale cardiac MRI frames with paired binary masks. The segmentation targets were studied with attention to their anatomical meaning: the endocardial contour separates the ventricular cavity from the myocardium, while the epicardial contour follows the external myocardial boundary.
 
 | Split | Frames | Endocardium masks | Epicardium masks |
 | --- | ---: | ---: | ---: |
@@ -43,24 +43,24 @@ Two independent binary segmentation tasks are modeled:
 - **Endocardium**: inner cardiac contour / cavity boundary.
 - **Epicardium**: outer myocardial contour.
 
-The dataset is not redistributed as a full dataset in this repository because it does not ship with a formal public license. Selected validation panels are included only as demonstrative project evidence, and the repository includes pretrained checkpoints so the public app can run.
+The full dataset is not redistributed in this repository because it does not ship with a formal public license. Selected validation panels are included as scientific illustrations of the task, and the repository includes trained checkpoints so the public app can run independently.
 
 ## Methodology
 
 The core model is a U-Net encoder-decoder architecture with skip connections. The repository contains:
 
-- a **legacy U-Net** compatible with the original Keras `.h5` checkpoints;
+- a **Keras U-Net implementation** compatible with the trained `.h5` checkpoints;
 - a **modern configurable U-Net** variant with batch normalization/dropout options;
 - deterministic image-mask pairing by filename;
 - grayscale normalization and resize to `256 x 256`;
 - binary mask thresholding at `0.5`;
 - reproducible evaluation exports in CSV/JSON.
 
-The implementation is intentionally separated from notebooks. The goal is to make the experiment auditable: data loading, model construction, evaluation, visualization and deployment each live in their own module.
+The implementation is structured as a reproducible experiment: data loading, model construction, evaluation, visualization and deployment each live in their own module. This makes the scientific choices inspectable instead of hidden inside an interactive session.
 
 ## Results and Interpretation
 
-Validation was performed on 30 held-out frames using the legacy U-Net checkpoints.
+Validation was performed on 30 held-out frames using the trained U-Net checkpoints.
 
 ![Metrics summary](docs/assets/metrics_summary.png)
 
@@ -93,18 +93,18 @@ Each panel shows the input frame, ground-truth mask, predicted mask and overlay.
 
 These examples make the numerical results easier to interpret. Good Dice scores are visible as strong spatial overlap, while the boundary metrics explain why the epicardium task remains more sensitive to local contour deviations.
 
-## Engineering Value
+## Reproducible Research and Deployment
 
-This repository is also an engineering refactor of a notebook-based academic project. The added value is the transition from "model that was trained once" to a small reproducible product-like workflow:
+Beyond model training, this project emphasizes reproducibility and communication of biomedical AI results. The repository is organized so that another reader can inspect the data flow, run inference, reproduce evaluation summaries, and understand the limitations of the experiment:
 
 - `src/segmed/`: package for dataset loading, U-Net models, metrics, evaluation and visualization;
 - `configs/`: endocardium/epicardium experiment configuration;
 - `segmed` CLI: train, evaluate and predict from the terminal;
-- `app/streamlit_app.py`: interactive inference demo;
+- `app/streamlit_app.py`: interactive inference prototype;
 - `docs/results/`: public validation summaries used by this README;
 - `tests/`: unit tests for deterministic metric/config behavior.
 
-This structure makes the project inspectable for people who do not want to run the full training pipeline, while still keeping the codebase reproducible for technical review.
+This structure reflects the objective of a Master-level biomedical AI project: not only implementing a neural network, but also explaining the clinical target, validating the output, visualizing model behavior, and making the work reviewable.
 
 ## Limitations and Next Steps
 
@@ -112,7 +112,7 @@ The current validation set is small (`30` frames), so the results should be inte
 
 Other planned improvements:
 
-- compare the legacy U-Net against the modern U-Net configuration;
+- compare the checkpoint-compatible U-Net against the modern U-Net configuration;
 - add uncertainty or confidence maps for visual quality control;
 - report per-image worst cases and failure modes;
 - add a public benchmark loader once licensing and format assumptions are explicit.
@@ -130,7 +130,7 @@ Evaluate the public endocardium checkpoint:
 ```bash
 segmed evaluate \
   --config configs/endo.yaml \
-  --weights models/endo_legacy_unet.h5 \
+  --weights models/endo_unet.h5 \
   --split Val
 ```
 
@@ -145,10 +145,10 @@ For this local preparation folder only, if the path contains special characters 
 ```bash
 PYTHONPATH=src python -m segmed.cli evaluate \
   --config configs/endo.yaml \
-  --weights models/endo_legacy_unet.h5 \
+  --weights models/endo_unet.h5 \
   --split Val
 ```
 
 ## Repository Notes
 
-Full local datasets, training outputs, TensorBoard logs and scratch artifacts are ignored by Git. The included model checkpoints and selected visual panels are used to make the repository understandable and demo-ready without redistributing the full dataset.
+Full local datasets, training outputs, TensorBoard logs and scratch artifacts are ignored by Git. The included model checkpoints and selected visual panels are used to make the scientific workflow understandable and demo-ready without redistributing the full dataset.

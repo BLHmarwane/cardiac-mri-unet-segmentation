@@ -52,7 +52,7 @@ with st.sidebar:
     target = st.selectbox("Target", ["endo", "epi"])
     default_config = ROOT / "configs" / f"{target}.yaml"
     default_weights = ROOT / "models" / (
-        "endo_legacy_unet.h5" if target == "endo" else "epi_legacy_unet.h5"
+        "endo_unet.h5" if target == "endo" else "epi_unet.h5"
     )
     config_path = st.text_input("Config path", str(default_config))
     weights_path = st.text_input("Weights path", str(default_weights))
